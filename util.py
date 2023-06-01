@@ -4,7 +4,7 @@ import numpy as np
 import torch
 from collections import Counter
 import math
-
+from sklearn.metrics import accuracy_score, recall_score
 
 def sigmoid(x):
     return 1 / (1 + math.exp(-x))
@@ -85,7 +85,8 @@ class ATMDataset:
 
 
 def abs_error(pred, gold):
-    return np.mean(np.abs(pred - gold))
+    #return np.mean(np.abs(pred - gold))
+    return np.sqrt(np.mean((pred-gold)**2))
 
 
 def clf_metric(pred, gold, n_class):
@@ -93,6 +94,9 @@ def clf_metric(pred, gold, n_class):
     pred_count = Counter(pred)
     prec = recall = 0
     pcnt = rcnt = 0
+    accuracy = accuracy_score(gold, pred)
+    #print('Recall', recall_score(gold, pred))
+
     for i in range(n_class):
         match_count = np.logical_and(pred == gold, pred == i).sum()
         if gold_count[i] != 0:
@@ -103,6 +107,10 @@ def clf_metric(pred, gold, n_class):
             rcnt += 1
     prec /= pcnt
     recall /= rcnt
+
     print(f"pcnt={pcnt}, rcnt={rcnt}")
     f1 = 2 * prec * recall / (prec + recall)
+
+    recall = accuracy
+
     return prec, recall, f1
